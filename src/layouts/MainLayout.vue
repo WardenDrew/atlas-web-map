@@ -1,43 +1,71 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
+    <q-header class="bg-transparent">
+      <q-toolbar class="bg-blue-grey-7">
+        <q-toolbar-title>Atlas Web Map</q-toolbar-title>
+
+        <div class="gt-xs">
+          <div
+            v-if="authStore.state.signedIn"
+            class="overflow-hidden ellipsis"
+            style="max-width: 300px"
+          >
+            Welcome back
+            <b>{{ authStore.state.username }}</b>
+          </div>
+          <div v-else>
+            <q-btn
+              color="primary"
+              rounded
+              icon-right="mdi-account-plus"
+              label="Sign Up"
+              @click="authStore.signUp()"
+            />
+            <q-btn
+              flat
+              rounded
+              class="q-ml-sm"
+              label="Sign In"
+              icon-right="mdi-login"
+              @click="authStore.signIn()"
+            />
+          </div>
+        </div>
+
+        <q-toggle
+          v-model="authStore.state.dark"
+          toggle-indeterminate
+          indeterminate-value="auto"
+          checked-icon="mdi-weather-night"
+          unchecked-icon="mdi-weather-sunny"
+          indeterminate-icon="mdi-lightbulb-auto-outline"
+          color="black"
+          keep-color
+          size="lg"
+        >
+          <q-tooltip>
+            <span v-if="authStore.state.dark === false">
+              In <i>Light Mode</i>, toggle to <i>Match Device Mode</i>
+            </span>
+            <span v-else-if="authStore.state.dark === 'auto'">
+              In <i>Match Device Mode</i>, toggle to <i>Dark Mode</i>
+            </span>
+            <span v-else> In <i>Dark Mode</i>, toggle to <i>Light Mode</i> </span>
+          </q-tooltip>
+        </q-toggle>
+
         <q-btn
           flat
-          dense
           round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+          icon="mdi-menu"
+          @click="showMenu = !showMenu"
+        >
+          <q-tooltip> Toggle the Menu </q-tooltip>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
+    <main-menu v-model="showMenu" />
 
     <q-page-container>
       <router-view />
@@ -45,58 +73,13 @@
   </q-layout>
 </template>
 
+<style scoped lang="scss"></style>
+
 <script setup lang="ts">
+import { useAuthStore } from 'src/stores/authStore';
+import MainMenu from 'src/components/MainMenu.vue';
 import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from 'components/EssentialLink.vue';
+const authStore = useAuthStore();
 
-const linksList: EssentialLinkProps[] = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-];
-
-const leftDrawerOpen = ref(false);
-
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value;
-}
+const showMenu = ref(false);
 </script>
