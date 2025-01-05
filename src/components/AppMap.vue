@@ -64,15 +64,10 @@ import {
 import type { LatLngBoundsExpression, Map } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { onMounted, ref } from 'vue';
+import { useMapViewStore } from 'src/stores/mapViewStore';
+const mapViewStore = useMapViewStore();
 
-const showCenterMapButton = ref(false);
-let isCentering = false;
-const centerMap = () => {
-  isCentering = true;
-  showCenterMapButton.value = false;
-  appMap?.fitBounds(bounds);
-};
-
+// constants for this map
 const cellSize = 1400000;
 const cellRowNum = 9;
 const cellColNum = 9;
@@ -87,6 +82,15 @@ const bounds: LatLngBoundsExpression = [
   [0, 0],
   [worldYMax, worldXMax],
 ];
+
+// Center Button
+const showCenterMapButton = ref(false);
+let isCentering = false;
+const centerMap = () => {
+  isCentering = true;
+  showCenterMapButton.value = false;
+  appMap?.fitBounds(bounds);
+};
 
 const colToLetter = function (col: number) {
   return (col + 10).toString(36).toUpperCase();
@@ -139,15 +143,22 @@ onMounted(() => {
         }),
       })
         .on('click', () => {
-          appMap?.fitBounds([
-            [cellRow * cellSize, cellCol * cellSize],
-            [cellRow * cellSize + cellSize, cellCol * cellSize + cellSize],
-          ]);
+          appMap?.flyToBounds(
+            [
+              [cellRow * cellSize, cellCol * cellSize],
+              [cellRow * cellSize + cellSize, cellCol * cellSize + cellSize],
+            ],
+            {
+              animate: true,
+              duration: 1,
+            },
+          );
         })
         .addTo(appMap);
     }
   }
 
+  // Need to set center and zoom first
   appMap.fitBounds(bounds);
 
   appMap.on('movestart', () => {
@@ -155,8 +166,36 @@ onMounted(() => {
     showCenterMapButton.value = true;
   });
 
-  appMap.on('movestart', () => {
+  appMap.on('moveend', () => {
     isCentering = false;
+    setTimeout(() => {
+      mapViewStore.state.lastCenter = appMap?.getCenter();
+      mapViewStore.state.lastZoom = appMap?.getZoom();
+    }, 100);
   });
+
+  setTimeout(() => {
+    if (
+      appMap === undefined ||
+      mapViewStore.state.lastCenter === undefined ||
+      mapViewStore.state.lastZoom === undefined
+    ) {
+      return;
+    }
+
+    const curCenter = appMap.getCenter();
+    const curZoom = appMap.getZoom();
+
+    if (
+      curCenter.lat != mapViewStore.state.lastCenter.lat ||
+      curCenter.lng != mapViewStore.state.lastCenter.lng ||
+      curZoom != mapViewStore.state.lastZoom
+    ) {
+      appMap.flyTo(mapViewStore.state.lastCenter, mapViewStore.state.lastZoom, {
+        animate: true,
+        duration: 1,
+      });
+    }
+  }, 200);
 });
 </script>

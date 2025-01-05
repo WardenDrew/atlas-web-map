@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { reactive, watch } from 'vue';
 import { useQuasar } from 'quasar';
+import type { LatLng } from 'leaflet';
 
 const STORE_NAME = 'auth';
 
@@ -9,6 +10,8 @@ interface Auth {
   username: string | undefined;
   email: string | undefined;
   dark: boolean | 'auto';
+  lastCenter: LatLng | undefined;
+  lastZoom: number | undefined;
 }
 
 export const useAuthStore = defineStore(STORE_NAME, () => {
@@ -19,6 +22,8 @@ export const useAuthStore = defineStore(STORE_NAME, () => {
     username: undefined,
     email: undefined,
     dark: $q.dark.mode,
+    lastCenter: undefined,
+    lastZoom: undefined,
   });
 
   const lsStateString = localStorage.getItem(STORE_NAME);
