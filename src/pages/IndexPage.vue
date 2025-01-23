@@ -2,27 +2,35 @@
   <q-page class="fit">
     <app-map />
 
-    <div
-      class="full-width absolute-bottom"
-      style="z-index: 2000"
+    <q-dialog
+      v-model="showDevDialog"
+      backdrop-filter="blur(5px)"
     >
-      <div class="row justify-center">
-        <div
-          class="text-subtitle1 q-py-xs q-px-sm q-mb-xs text-white"
-          style="
-            background-color: rgba(0, 0, 0, 0.5);
-            pointer-events: none;
-            user-select: none;
-            backdrop-filter: blur(1px);
-          "
-        >
-          Furtive Sage Gaming - Pirate's Parley
-        </div>
-      </div>
-    </div>
+      <q-card>
+        <q-card-section>
+          This site is still in development. Currently this only functions as a satellite map of the
+          game. The ability save markers will be arriving soon!
+        </q-card-section>
+        <q-card-section>
+          Missing High Res Grid map images and tradewinds for the following: A1, D2, F3, F4, G4, G6,
+          H4, H7, I1, I7, I8
+        </q-card-section>
+        <q-card-actions>
+          <q-space />
+          <q-btn
+            label="Ok"
+            color="primary"
+            @click="showDevDialog = false"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import AppMap from 'src/components/AppMap.vue';
+import { ref } from 'vue';
+
+const showDevDialog = ref(true);
 </script>

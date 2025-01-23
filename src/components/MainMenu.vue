@@ -3,7 +3,6 @@
     side="right"
     v-model="showMenu"
     bordered
-    overlay
     :width="250"
     :breakpoint="500"
     :class="$q.dark.isActive ? 'bg-grey-9' : 'bg-grey-3'"
